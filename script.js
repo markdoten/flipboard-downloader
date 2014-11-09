@@ -47,10 +47,10 @@
       if (!processElem(elem)) {
         return;
       }
-      if (cnt % 10 === 0 && elem.nextElementSibling) {
+      if (cnt % 5 === 0 && elem.nextElementSibling) {
         setTimeout(function() {
           walkThroughVisibleImages(elem.nextElementSibling);
-        }, 2000);
+        }, 3000);
         return;
       }
     }
