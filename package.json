@@ -1,0 +1,10 @@
+{
+  "description": "Download flipboard magazine images",
+  "name": "flipboard-downloader",
+  "repository": "https://github.com/markdoten/flipboard-downloader",
+  "version": "0.0.0",
+  "dependencies": {
+    "casperjs": "1.1.0-beta3",
+    "jquery": "*"
+  }
+}
