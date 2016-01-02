@@ -1,14 +1,16 @@
 var processMagazine = require('src/magazine');
 var util = require('src/casper-util');
 
-var ROOT_URL = 'https://flipboard.com';
 var magazines = [];
 
 var casper = require('casper').create({
   clientScripts:  ['node_modules/jquery/dist/jquery.min.js'],
-  userAgent: 'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/37.0.2062.120 Safari/537.36',
+  pageSettings: {
+    userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4'
+  },
+  userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4',
   verbose: true,
-  waitTimeout: 1000000
+  waitTimeout: 100000
 });
 
 casper.start('https://flipboard.com/signin');
@@ -18,41 +20,63 @@ casper.on('page.initialized', util.shim);
 casper.on('remote.message', util.remoteMessage);
 casper.on("page.error", util.pageError);
 
-casper.thenEvaluate(function(user, pass) {
-  console.log('Authentication');
-  console.log('Username:', user);
-  console.log('Password:', pass);
 
-  var inputs = $('.login-form-content .text-input');
-  $(inputs[0]).val(user);
-  $(inputs[1]).val(pass);
-  $('.login-form-content button[label="Sign In"]').click();
-},
-casper.cli.get('username'),
-casper.cli.get('password'));
-
-casper.waitForUrl(/flipboard\.com\/$/).thenOpen('https://flipboard.com/profile');
 
 casper.wait(1000).then(function() {
+  var user = this.cli.get('username');
+  var pass = this.cli.get('password');
+
+  this.echo('Authentication');
+  this.echo('Username: ' + user);
+  this.echo('Password: ' + pass);
+
+  this.fillSelectors('form.email-form', {
+    'input[type="text"]': user,
+    'input[type="password"]': pass
+  }, true);
+});
+
+casper.waitForSelector('button[title="Go to My Flipboard"]');
+
+casper.thenOpen('https://flipboard.com/following', function() {
+  this.click('.hbox > div:nth-last-child(1)');
+});
+
+casper.then(function() {
   magazines = this.evaluate(function() {
     var items = [];
-    $('.profile-magazines .grid-item').each(function(idx, item) {
-      var magazineUrl = $(item).find('a.section-link').attr('href');
+    $('.hbox + div').find('div[role="button"]').each(function(idx, item) {
       items.push({
-        name: magazineUrl.match(/\/@[a-zA-Z0-9\-]+\/([a-zA-Z0-9\-]*)\-[^-]*$/)[1],
-        url: magazineUrl
+        name: $(item).children(':last').html(),
+        elem: $(item)
       });
     });
     return items;
   });
 });
 
+
+// casper.wait(1000).then(function() {
+//   magazines = this.evaluate(function() {
+//     var items = [];
+//     $('.profile-magazines .grid-item').each(function(idx, item) {
+//       var magazineUrl = $(item).find('a.section-link').attr('href');
+//       items.push({
+//         name: magazineUrl.match(/\/@[a-zA-Z0-9\-]+\/([a-zA-Z0-9\-]*)\-[^-]*$/)[1],
+//         url: magazineUrl
+//       });
+//     });
+//     return items;
+//   });
+// });
+
 casper.then(function() {
   var mags = casper.cli.get('magazines').split(',');
+  this.echo(mags);
   this.echo(magazines);
   this.each(magazines, function(self, magazine) {
     if (mags.indexOf(magazine.name) > -1) {
-      processMagazine(self, magazine.name, ROOT_URL + magazine.url);
+      processMagazine(self, magazine);
     }
   });
 });
