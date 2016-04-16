@@ -13,5 +13,6 @@ node_modules: package.json
 	npm install
 	touch $@
 
+MAGS=cool
 run:
-	./node_modules/.bin/casperjs --web-security=no ./download.js --username=$(USER) --password=$(PASS) --magazines=$(MAGS)
+	./node_modules/.bin/phantomjs ./src/phantom/download.js $(USER) $(PASS)

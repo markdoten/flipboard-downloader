@@ -1,5 +1,5 @@
-var processMagazine = require('src/magazine');
-var util = require('src/casper-util');
+var processMagazine = require('./magazine');
+var util = require('./casper-util');
 
 var magazines = [];
 
@@ -75,7 +75,7 @@ casper.then(function() {
   this.echo(mags);
   this.echo(magazines);
   this.each(magazines, function(self, magazine) {
-    if (mags.indexOf(magazine.name) > -1) {
+    if (!mags.length || mags.indexOf(magazine.name.toLowerCase()) > -1) {
       processMagazine(self, magazine);
     }
   });

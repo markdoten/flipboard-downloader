@@ -11,7 +11,36 @@ module.exports = function(casper, magazine) {
     this.echo(magazine.name);
   });
 
+  casper.then(function() {
+    this.mouse.down(1161, 471);
+    this.mouse.move(441, 708);
+    this.mouse.up(441, 708);
 
+    this.echo(document.querySelectorAll('button').length);
+
+    // var num = this.evaluate(function() {
+    //   var x = 0;
+
+    //   $('button').each(function () {
+    //     x++;
+    //   });
+
+    //   // $('a[href~="/@markdoten"]').each(function () {
+    //   //   x++;
+    //   // });
+    //   return x;
+    // });
+    // this.echo(num);
+
+    // var anchors = this.evaluate(function() {
+    //   var x = [];
+    //   $('a').each(function () {
+    //     anchors$('div').append(this).html();
+    //   });
+    //   return
+    // });
+    // this.echo(anchors);
+  });
 
   // var urls = [];
 
