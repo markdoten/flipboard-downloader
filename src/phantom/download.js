@@ -4,12 +4,6 @@ var Workflow = require('./workflow');
 var system = require('system');
 var util = require('./util');
 
-var MAG_URLS = {
-  cool: 'cool-0ei1d3uhy',
-  iphone: 'iphone-5mm7uejky',
-  yachts: 'yachts-rsn27rfey'
-};
-
 var magazines;
 var workflow = new Workflow(createPage());
 
