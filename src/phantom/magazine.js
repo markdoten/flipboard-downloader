@@ -23,6 +23,7 @@ workflow.addStep('Scroll', function (done) {
   var page = workflow._page;
   var prevLen = 0;
   var processing = false;
+  var scrolled = false;
 
   var interval = setInterval(function () {
     if (processing) {
@@ -32,7 +33,7 @@ workflow.addStep('Scroll', function (done) {
     prevLen = newImages.length;
     newImages = page.evaluate(function () {
       var imgs = [];
-      $('.page-content .background-image').each(function (idx, item) {
+      $('.grid-page .background-image, .photo-page .background-image').each(function (idx, item) {
         $img = $(item);
         imgs.push({
           elem: $img[0],
@@ -53,13 +54,24 @@ workflow.addStep('Scroll', function (done) {
     processing = true;
     combine(images, newImages);
 
-    page.evaluate(function () {
-      window.scrollTo(0, document.body.scrollHeight);
-    });
+    setTimeout(function () {
+      page.evaluate(function () {
+        window.scrollTo(0, document.body.scrollHeight);
+      });
+      scrolled = true;
+    }, 1000);
 
     setTimeout(function () {
-      processing = false;
-    }, 3000);
+      processing = !page.evaluate(function () {
+        console.log('loading?', $('.load-more').length);
+        return !!$('.load-more').length;
+      });
+      if (!processing && scrolled) {
+        scrolled = false;
+        return;
+      }
+      setTimeout(arguments.callee, 100);
+    }, 100);
   }, 1000);
 });
 
@@ -91,7 +103,7 @@ workflow.addStep('Process images', function (done) {
       return callback();
     }
     processing = true;
-    util.download(item, dest, callback, page);
+    util.download(item, dest, callback);
   }, 1000);
 });
 

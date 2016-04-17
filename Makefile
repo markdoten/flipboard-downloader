@@ -13,6 +13,8 @@ node_modules: package.json
 	npm install
 	touch $@
 
+EXCLUDE=
 MAGS=cute
 run:
-	./node_modules/.bin/phantomjs ./src/phantom/download.js $(USER) $(PASS) $(MAGS)
+	./node_modules/.bin/phantomjs ./src/phantom/download.js \
+	user=$(USER) pass=$(PASS) mags=$(MAGS) exclude=$(EXCLUDE)
