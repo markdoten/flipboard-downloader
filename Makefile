@@ -13,6 +13,6 @@ node_modules: package.json
 	npm install
 	touch $@
 
-MAGS=cool
+MAGS=cute
 run:
-	./node_modules/.bin/phantomjs ./src/phantom/download.js $(USER) $(PASS)
+	./node_modules/.bin/phantomjs ./src/phantom/download.js $(USER) $(PASS) $(MAGS)

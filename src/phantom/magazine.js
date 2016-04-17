@@ -1,6 +1,8 @@
-var createPage = require('./util').createPage;
+var combine = require('mout/array/combine');
+var util = require('./util');
 var Workflow = require('./workflow');
 
+var images = [];
 var magazine;
 var workflow = new Workflow();
 
@@ -10,28 +12,92 @@ workflow.addStep('Load magazine', function (done) {
       return done();
     }
     if (workflow._page.injectJs('node_modules/jquery/dist/jquery.min.js')) {
-      if (workflow._page.injectJs('node_modules/jquery-touchswipe/jquery.touchSwipe.min.js')) {
-        done();
-      }
+      done();
     }
   });
 });
 
-workflow.addStep('Scroll', function () {
+workflow.addStep('Scroll', function (done) {
+  var $img;
+  var newImages = [];
   var page = workflow._page;
+  var prevLen = 0;
+  var processing = false;
 
-  page.evaluate(function () {
-    var $elem = $('.fill .fill .fill > div > div > div > div:last');
+  var interval = setInterval(function () {
+    if (processing) {
+      return;
+    }
 
-    $elem.trigger('swipeUp', ['up', '100', 200, 1]);//, fingerData, currentDirection]);
-    
-  });
+    prevLen = newImages.length;
+    newImages = page.evaluate(function () {
+      var imgs = [];
+      $('.page-content .background-image').each(function (idx, item) {
+        $img = $(item);
+        imgs.push({
+          elem: $img[0],
+          height: $img.attr('height'),
+          src: $img.attr('src'),
+          width: $img.attr('width')
+        });
+      });
+      return imgs;
+    });
 
-  page.render(magazine.name + '.png');
+    console.log(newImages.length, prevLen);
+    if (newImages.length === prevLen) {
+      clearInterval(interval);
+      return done();
+    }
+
+    processing = true;
+    combine(images, newImages);
+
+    page.evaluate(function () {
+      window.scrollTo(0, document.body.scrollHeight);
+    });
+
+    setTimeout(function () {
+      processing = false;
+    }, 3000);
+  }, 1000);
+});
+
+workflow.addStep('Process images', function (done) {
+  var dest = 'images/' + magazine.name;
+  var idx = 0;
+  var item;
+  var page = workflow._page;
+  var processing = false;
+
+  function callback() {
+    processing = false;
+    idx++;
+  }
+
+  var interval = setInterval(function () {
+    if (processing) {
+      return;
+    }
+
+    if (idx === images.length) {
+      clearInterval(interval);
+      return done();
+    }
+
+    item = images[idx];
+
+    if (!item) {
+      return callback();
+    }
+    processing = true;
+    util.download(item, dest, callback, page);
+  }, 1000);
 });
 
 module.exports = function (mag, done) {
+  images = [];
   magazine = mag;
-  workflow.setPage(createPage());
+  workflow.setPage(util.createPage());
   workflow.process(done);
 };

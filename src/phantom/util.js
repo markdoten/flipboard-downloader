@@ -1,3 +1,6 @@
+var process = require("child_process");
+var spawn = process.spawn;
+var execFile = process.execFile;
 var webpage = require('webpage');
 
 /**
@@ -11,9 +14,26 @@ var util = {};
  * @return {Webpage}
  */
 util.createPage = function () {
-  var page = webpage.create();
-  // page.settings.userAgent = 'Mozilla/5.0 (iPhone; CPU iPhone OS 8_0 like Mac OS X) AppleWebKit/600.1.3 (KHTML, like Gecko) Version/8.0 Mobile/12A4345d Safari/600.1.4';
-  return page;
+  return webpage.create();
+};
+
+/**
+ * [download description]
+ * @param  {[type]} uri
+ * @param  {[type]} dest
+ * @param  {Function} callback
+ * @return {[type]}
+ */
+util.download = function (img, dest, callback, page) {
+  console.log('Downloading:', img.src);
+  var parts = img.src.split('/');
+  var filename = dest + '/' + parts[parts.length - 1];
+
+  execFile('node', ['download.js', img.src, filename], null, function (err, stdout, stderr) {
+    console.log("execFileSTDOUT:", JSON.stringify(stdout));
+    console.log("execFileSTDERR:", JSON.stringify(stderr));
+    callback();
+  });
 };
 
 module.exports = util;

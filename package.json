@@ -5,7 +5,8 @@
   "version": "0.0.0",
   "dependencies": {
     "casperjs": "1.1.0",
-    "phantomjs": "2.1.1",
-    "jquery": "*"
+    "jquery": "*",
+    "mout": "0.11.1",
+    "phantomjs": "2.1.1"
   }
 }
