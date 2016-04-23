@@ -16,8 +16,8 @@ var util = {};
 util.createPage = function () {
   var page = webpage.create();
   page.viewportSize = {
-    height: 760,
-    width: 760
+    height: 875,
+    width: 1450
   };
   return page;
 };

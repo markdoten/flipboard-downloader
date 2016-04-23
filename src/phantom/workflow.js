@@ -66,7 +66,7 @@ Workflow.prototype._initializePageHandlers = function () {
   }
 
   this._page.onConsoleMessage = function (msg) {
-    console.log(msg);
+    // console.log(msg);
   };
 
   this._page.onLoadStarted = function () {

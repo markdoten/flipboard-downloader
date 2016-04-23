@@ -62,11 +62,17 @@ workflow.addStep('Load magazines', function (done) {
 workflow.addStep('Compile magazines', function () {
   var page = workflow._page;
   magazines = page.evaluate(function () {
+    function getMagPath(path) {
+      return path.replace(/@([^\/]*).*-([^-]*)$/, 'editor/sid%2F$2%2F$1');
+    }
+
     var items = [];
+    var path;
     $('.magazine-tile').each(function (idx, mag) {
+      path = $(mag).find('.section-link').attr('href');
       items.push({
         name: $(mag).find('h3.truncated-text').html(),
-        url: 'https://flipboard.com' + $(mag).find('.section-link').attr('href')
+        url: 'https://flipboard.com' + getMagPath(path)
       });
     });
     return items;
