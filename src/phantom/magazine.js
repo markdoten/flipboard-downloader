@@ -45,7 +45,7 @@ workflow.addStep('Find all images', function (done) {
     newImages = page.evaluate(function () {
       function getImgPath(path) {
         path = path.split('?')[0];
-        return path.replace(/_(250|500)\.([a-z]{3,4})$/, '_1280.$2');
+        return path.replace(/_(250|500)\.([a-z]{3,})$/, '_1280.$2');
       }
 
       var imgs = [];
