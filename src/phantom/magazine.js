@@ -12,12 +12,23 @@ workflow.addStep('Load magazine', function (done) {
       return done();
     }
     if (workflow._page.injectJs('node_modules/jquery/dist/jquery.min.js')) {
-      done();
+      setTimeout(done, 5000);
     }
   });
 });
 
-workflow.addStep('Scroll', function (done) {
+workflow.addStep('Show stats', function () {
+  var count = workflow._page.evaluate(function () {
+    return $('.magazine-stats > li:first > .value').html();
+  });
+
+  console.log('\n\n\n=====================================================');
+  console.log('name:    ', magazine.name);
+  console.log('articles:', count);
+  console.log('=====================================================\n');
+});
+
+workflow.addStep('Find all images', function (done) {
   var $img;
   var newImages = [];
   var page = workflow._page;
@@ -38,26 +49,33 @@ workflow.addStep('Scroll', function (done) {
       }
 
       var imgs = [];
-      $('.grid-item .editor-item-tile-body img').each(function (idx, item) {
+      var sel = window.lastImg ?
+        $(window.lastImg).parents('.grid-item').nextAll() :
+        $('.grid-item');
+
+      sel.find('.editor-item-tile-body img').each(function (idx, item) {
         $img = $(item);
         imgs.push({
-          elem: $img[0],
           height: $img.attr('height'),
           src: getImgPath($img.attr('src')),
           width: $img.attr('width')
         });
+        window.lastImg = $img[0];
       });
+
       return imgs;
     });
 
-    console.log(newImages.length, prevLen);
-    if (newImages.length === prevLen) {
+    console.log('New Images:', newImages.length);
+
+    if (!newImages.length) {
+      console.log('Total Images:', images.length);
       clearInterval(interval);
       return done();
     }
 
     processing = true;
-    combine(images, newImages);
+    images = images.concat(newImages);
 
     setTimeout(function () {
       page.evaluate(function () {
@@ -67,15 +85,6 @@ workflow.addStep('Scroll', function (done) {
     }, 1000);
 
     setTimeout(function () {
-      // processing = !page.evaluate(function () {
-      //   console.log('loading?', $('.load-more').length);
-      //   return !!$('.load-more').length;
-      // });
-      // if (!processing && scrolled) {
-      //   scrolled = false;
-      //   return;
-      // }
-      // setTimeout(arguments.callee, 100);
       processing = false;
       scrolled = false;
     }, 10000);
