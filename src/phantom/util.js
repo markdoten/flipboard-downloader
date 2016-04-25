@@ -1,6 +1,5 @@
 var fs = require('fs');
-var process = require("child_process");
-var spawn = process.spawn;
+var process = require('child_process');
 var execFile = process.execFile;
 var webpage = require('webpage');
 

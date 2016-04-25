@@ -79,10 +79,10 @@ workflow.addStep('Find all images', function (done) {
     console.log('New Images:', newImages.length);
 
     if (!newImages.length) {
-      console.log('\n\n\n=======================');
+      console.log('\n=======================');
       console.log('total images:  ', images.length);
       console.log('total articles:', articles);
-      console.log('=======================\n');
+      console.log('=======================');
 
       clearInterval(interval);
       return done();
