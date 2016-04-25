@@ -47,6 +47,17 @@ util.getDaysFromNow = function (then, now) {
 };
 
 /**
+ * Get the magazine access json data.
+ * @return {Object}
+ */
+util.getMagazineAccess = function () {
+  if (fs.isFile(accessFilename)) {
+    return JSON.parse(fs.read(accessFilename));
+  }
+  return {};
+};
+
+/**
  * Parse the system arguments into an object.
  * @param {Array.<string>} args - Arguments to parse.
  * @return {Object}
@@ -70,7 +81,10 @@ util.parseSystemArgs = function (args) {
  * @param {string} dateString - Processed time in ISO string format.
  */
 util.updateProcessTime = function (name, dateString) {
-  var accessJSON = JSON.parse(fs.read(accessFilename));
+  var accessJSON = {};
+  if (fs.isFile(accessFilename)) {
+    accessJSON = JSON.parse(fs.read(accessFilename));
+  }
   accessJSON[name] = dateString;
   fs.write(accessFilename, JSON.stringify(accessJSON));
 };

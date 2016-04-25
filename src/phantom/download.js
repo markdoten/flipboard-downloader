@@ -1,11 +1,11 @@
 var createPage = require('./util').createPage;
-var magazineAccess = require('../../magazine-access.json');
 var moment = require('moment');
 var processMagazine = require('./magazine');
 var Workflow = require('./workflow');
 var system = require('system');
 var util = require('./util');
 
+var magazineAccess = util.getMagazineAccess();
 var magazines;
 var workflow = new Workflow(createPage());
 
@@ -107,8 +107,8 @@ workflow.addStep('Process magazines', function (done) {
   var item;
   var processing = false;
 
-  function callback() {
-    util.updateProcessTime(item.name, moment().toISOString());
+  function callback(skipped) {
+    skipped || util.updateProcessTime(item.name, moment().toISOString());
     processing = false;
     idx++;
   }
@@ -127,7 +127,7 @@ workflow.addStep('Process magazines', function (done) {
     console.log(item.name, item.url);
 
     if (!validateRequested(item.name)) {
-      return callback();
+      return callback(true);
     }
     processing = true;
     processMagazine(item, callback);
