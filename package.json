@@ -6,6 +6,7 @@
   "dependencies": {
     "casperjs": "1.1.0",
     "jquery": "*",
+    "moment": "*",
     "mout": "0.11.1",
     "phantomjs": "2.1.1"
   }

@@ -1,3 +1,4 @@
+var fs = require('fs');
 var process = require("child_process");
 var spawn = process.spawn;
 var execFile = process.execFile;
@@ -29,15 +30,19 @@ util.createPage = function () {
  * @param {function()} callback - Complete callback.
  */
 util.download = function (img, dest, callback) {
-  console.log('Downloading:', img.src);
   var parts = img.src.split('/');
   var filename = dest + '/' + parts[parts.length - 1];
+  execFile('node', ['download.js', img.src, filename], null, callback);
+};
 
-  execFile('node', ['download.js', img.src, filename], null, function (err, stdout, stderr) {
-    console.log("execFileSTDOUT:", JSON.stringify(stdout));
-    console.log("execFileSTDERR:", JSON.stringify(stderr));
-    callback();
-  });
+/**
+ * Get the days from the current time.
+ * @param {moment} then - The date to compare to the current date.
+ * @param {moment} now - The current date.
+ * @return {number}
+ */
+util.getDaysFromNow = function (then, now) {
+  return now.diff(then, 'days') + 1;
 };
 
 /**
@@ -56,6 +61,18 @@ util.parseSystemArgs = function (args) {
     }
   });
   return ret;
+};
+
+/**
+ * Update the processed time of the magazine in JSON file.
+ * @param {string} name - Name of the magazine that was processed.
+ * @param {string} dateString - Processed time in ISO string format.
+ */
+util.updateProcessTime = function (name, dateString) {
+  var magazineAccess = fs.readFileSync('../../magazine-access.json', 'utf8');
+  var accessJSON = JSON.parse(magazineAccess);
+  accessJSON[name] = dateString;
+  fs.writeFileSync('../../magazine-access.json', JSON.stringify(accessJSON));
 };
 
 module.exports = util;

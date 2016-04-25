@@ -1,7 +1,7 @@
-var combine = require('mout/array/combine');
 var util = require('./util');
 var Workflow = require('./workflow');
 
+var articles = 0;
 var images = [];
 var magazine;
 var workflow = new Workflow();
@@ -22,17 +22,18 @@ workflow.addStep('Show stats', function () {
     return $('.magazine-stats > li:first > .value').html();
   });
 
-  console.log('\n\n\n=====================================================');
-  console.log('name:    ', magazine.name);
-  console.log('articles:', count);
+  console.log('\n=====================================================');
+  console.log('name:          ', magazine.name);
+  console.log('articles:      ', count);
+  console.log('last processed:', magazine.lastProcessed);
   console.log('=====================================================\n');
 });
 
 workflow.addStep('Find all images', function (done) {
   var $img;
-  var newImages = [];
+  var newImages;
   var page = workflow._page;
-  var prevLen = 0;
+  var processed = {};
   var processing = false;
   var scrolled = false;
 
@@ -41,35 +42,48 @@ workflow.addStep('Find all images', function (done) {
       return;
     }
 
-    prevLen = newImages.length;
-    newImages = page.evaluate(function () {
+    processed = page.evaluate(function () {
       function getImgPath(path) {
         path = path.split('?')[0];
         return path.replace(/_(250|500)\.([a-z]{3,})$/, '_1280.$2');
       }
 
+      var articles = 0;
       var imgs = [];
       var sel = window.lastImg ?
         $(window.lastImg).parents('.grid-item').nextAll() :
         $('.grid-item');
 
-      sel.find('.editor-item-tile-body img').each(function (idx, item) {
-        $img = $(item);
-        imgs.push({
-          height: $img.attr('height'),
-          src: getImgPath($img.attr('src')),
-          width: $img.attr('width')
+      sel.each(function (idx, gridItem) {
+        articles++;
+
+        $(gridItem).find('.editor-item-tile-body img').each(function (idx, item) {
+          $img = $(item);
+          imgs.push({
+            height: $img.attr('height'),
+            src: getImgPath($img.attr('src')),
+            width: $img.attr('width')
+          });
+          window.lastImg = $img[0];
         });
-        window.lastImg = $img[0];
       });
 
-      return imgs;
+      return {
+        articles: articles,
+        images: imgs
+      };
     });
+    articles += processed.articles;
+    newImages = processed.images;
 
     console.log('New Images:', newImages.length);
 
     if (!newImages.length) {
-      console.log('Total Images:', images.length);
+      console.log('\n\n\n=======================');
+      console.log('total images:  ', images.length);
+      console.log('total articles:', articles);
+      console.log('=======================\n');
+
       clearInterval(interval);
       return done();
     }
@@ -95,6 +109,7 @@ workflow.addStep('Process images', function (done) {
   var dest = 'images/' + magazine.name;
   var idx = 0;
   var item;
+  var len = images.length;
   var page = workflow._page;
   var processing = false;
 
@@ -108,7 +123,7 @@ workflow.addStep('Process images', function (done) {
       return;
     }
 
-    if (idx === images.length) {
+    if (idx === len) {
       clearInterval(interval);
       return done();
     }
@@ -119,11 +134,13 @@ workflow.addStep('Process images', function (done) {
       return callback();
     }
     processing = true;
+    console.log('Downloading', idx + 1, 'of', len);
     util.download(item, dest, callback);
   }, 1000);
 });
 
 module.exports = function (mag, done) {
+  articles = 0;
   images = [];
   magazine = mag;
   workflow.setPage(util.createPage());

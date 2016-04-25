@@ -1,4 +1,6 @@
 var createPage = require('./util').createPage;
+var magazineAccess = require('../../magazine-access.json');
+var moment = require('moment');
 var processMagazine = require('./magazine');
 var Workflow = require('./workflow');
 var system = require('system');
@@ -61,22 +63,42 @@ workflow.addStep('Load magazines', function (done) {
 
 workflow.addStep('Compile magazines', function () {
   var page = workflow._page;
-  magazines = page.evaluate(function () {
+  magazines = page.evaluate(function (magazineAccess) {
+    var items = [];
+    var name;
+    var path;
+
+    /**
+     * Get the last processed time for a magazine.
+     * @param {string} name - Name of the magazine to get time for.
+     * @return {moment}
+     */
+    function getLastProcessedTime(name) {
+      var time = magazineAccess[name];
+      return time ? moment(time) : null;
+    }
+
+    /**
+     * Convert the magazine path to the edit path that will be used.
+     * @param {string} path - The magazine path to convert.
+     * @return {string}
+     */
     function getMagPath(path) {
       return path.replace(/@([^\/]*).*-([^-]*)$/, 'editor/sid%2F$2%2F$1');
     }
 
-    var items = [];
-    var path;
     $('.magazine-tile').each(function (idx, mag) {
+      name = $(mag).find('h3.truncated-text').html();
       path = $(mag).find('.section-link').attr('href');
+
       items.push({
-        name: $(mag).find('h3.truncated-text').html(),
+        lastProcessed: getLastProcessedTime(name),
+        name: name,
         url: 'https://flipboard.com' + getMagPath(path)
       });
     });
     return items;
-  });
+  }, magazineAccess);
 });
 
 workflow.addStep('Process magazines', function (done) {
@@ -86,6 +108,7 @@ workflow.addStep('Process magazines', function (done) {
   var processing = false;
 
   function callback() {
+    util.updateProcessTime(item.name, moment().toISOString());
     processing = false;
     idx++;
   }
@@ -101,7 +124,7 @@ workflow.addStep('Process magazines', function (done) {
     }
 
     item = magazines[idx];
-    console.log(item.name, item.path);
+    console.log(item.name, item.url);
 
     if (!validateRequested(item.name)) {
       return callback();
