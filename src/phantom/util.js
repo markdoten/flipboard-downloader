@@ -3,6 +3,8 @@ var process = require('child_process');
 var execFile = process.execFile;
 var webpage = require('webpage');
 
+var accessFilename = 'magazine-access.json';
+
 /**
  * Utilities.
  * @type {Object}
@@ -68,10 +70,9 @@ util.parseSystemArgs = function (args) {
  * @param {string} dateString - Processed time in ISO string format.
  */
 util.updateProcessTime = function (name, dateString) {
-  var magazineAccess = fs.readFileSync('../../magazine-access.json', 'utf8');
-  var accessJSON = JSON.parse(magazineAccess);
+  var accessJSON = JSON.parse(fs.read(accessFilename));
   accessJSON[name] = dateString;
-  fs.writeFileSync('../../magazine-access.json', JSON.stringify(accessJSON));
+  fs.write(accessFilename, JSON.stringify(accessJSON));
 };
 
 module.exports = util;
