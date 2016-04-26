@@ -16,5 +16,5 @@ node_modules: package.json
 EXCLUDE=
 MAGS=cute
 run:
-	./node_modules/.bin/phantomjs ./src/phantom/download.js \
+	./node_modules/.bin/phantomjs ./src/download.js \
 	user=$(USER) pass=$(PASS) mags="$(MAGS)" exclude="$(EXCLUDE)"
