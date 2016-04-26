@@ -63,20 +63,11 @@ workflow.addStep('Load magazines', function (done) {
 
 workflow.addStep('Compile magazines', function () {
   var page = workflow._page;
+
   magazines = page.evaluate(function (magazineAccess) {
     var items = [];
     var name;
     var path;
-
-    /**
-     * Get the last processed time for a magazine.
-     * @param {string} name - Name of the magazine to get time for.
-     * @return {moment}
-     */
-    function getLastProcessedTime(name) {
-      var time = magazineAccess[name];
-      return time ? moment(time) : null;
-    }
 
     /**
      * Convert the magazine path to the edit path that will be used.
@@ -92,7 +83,7 @@ workflow.addStep('Compile magazines', function () {
       path = $(mag).find('.section-link').attr('href');
 
       items.push({
-        lastProcessed: getLastProcessedTime(name),
+        lastProcessed: magazineAccess[name],
         name: name,
         url: 'https://flipboard.com' + getMagPath(path)
       });

@@ -1,7 +1,9 @@
+var moment = require('moment');
 var util = require('./util');
 var Workflow = require('./workflow');
 
 var articles = 0;
+var currentTime = moment();
 var images = [];
 var magazine;
 var workflow = new Workflow();
@@ -37,18 +39,23 @@ workflow.addStep('Find all images', function (done) {
   var processing = false;
   var scrolled = false;
 
+  var lastProcessed = magazine.lastProcessed ? 
+    util.getDaysFromNow(moment(magazine.lastProcessed), currentTime) :
+    null;
+
   var interval = setInterval(function () {
     if (processing) {
       return;
     }
 
-    processed = page.evaluate(function () {
+    processed = page.evaluate(function (lastProcessed) {
       function getImgPath(path) {
         path = path.split('?')[0];
         return path.replace(/_(250|500)\.([a-z]{3,})$/, '_1280.$2');
       }
 
       var articles = 0;
+      var $gridItem;
       var imgs = [];
       var sel = window.lastImg ?
         $(window.lastImg).parents('.grid-item').nextAll() :
@@ -57,8 +64,18 @@ workflow.addStep('Find all images', function (done) {
       sel.each(function (idx, gridItem) {
         articles++;
 
-        $(gridItem).find('.editor-item-tile-body img').each(function (idx, item) {
+        $gridItem = $(gridItem);
+
+        $gridItem.find('.editor-item-tile-body img').each(function (idx, item) {
           $img = $(item);
+
+          var date = $gridItem.find('.editor-item-tile-created-date').html();
+          var matches = date.match(/(\d*)(h|d)$/);
+
+          if (lastProcessed && matches[2] === 'd' && parseInt(matches[1], 10) > lastProcessed) {
+            return;
+          }
+
           imgs.push({
             height: $img.attr('height'),
             src: getImgPath($img.attr('src')),
@@ -72,7 +89,8 @@ workflow.addStep('Find all images', function (done) {
         articles: articles,
         images: imgs
       };
-    });
+    }, lastProcessed);
+
     articles += processed.articles;
     newImages = processed.images;
 
