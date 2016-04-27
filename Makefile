@@ -14,7 +14,7 @@ node_modules: package.json
 	touch $@
 
 EXCLUDE=
-MAGS=cute
+MAGS=
 run:
 	./node_modules/.bin/phantomjs ./src/download.js \
 	user=$(USER) pass=$(PASS) mags="$(MAGS)" exclude="$(EXCLUDE)"

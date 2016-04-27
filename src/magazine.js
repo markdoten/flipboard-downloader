@@ -70,7 +70,7 @@ workflow.addStep('Find all images', function (done) {
           $img = $(item);
 
           var date = $gridItem.find('.editor-item-tile-created-date').html();
-          var matches = date.match(/(\d*)(h|d)$/);
+          var matches = date.match(/(\d*)(s|m|h|d)$/);
 
           if (lastProcessed && matches[2] === 'd' && parseInt(matches[1], 10) > lastProcessed) {
             return;
