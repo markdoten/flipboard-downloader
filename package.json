@@ -4,10 +4,13 @@
   "repository": "https://github.com/markdoten/flipboard-downloader",
   "version": "0.0.0",
   "dependencies": {
-    "casperjs": "1.1.0",
+    "babel-polyfill": "*",
+    "es5-shim": "*",
+    "es6-shim": "*",
+    "es6-symbol": "*",
     "jquery": "*",
     "moment": "*",
-    "mout": "0.11.1",
-    "phantomjs": "2.1.1"
+    "mout": "^0.11.1",
+    "phantomjs": "^2.1.7"
   }
 }

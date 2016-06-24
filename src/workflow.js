@@ -69,6 +69,11 @@ Workflow.prototype._initializePageHandlers = function () {
     // console.log(msg);
   };
 
+  this._page.onInitialized = function () {
+    self._page.injectJs('node_modules/es5-shim/es5-shim.js');
+    self._page.injectJs('node_modules/babel-polyfill/dist/polyfill.min.js');
+  };
+
   this._page.onLoadStarted = function () {
     self._loadInProgress = true;
     console.log('load started');

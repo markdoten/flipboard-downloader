@@ -17,6 +17,7 @@ var util = {};
  */
 util.createPage = function () {
   var page = webpage.create();
+  page.settings.userAgent = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_10_5) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/51.0.2704.103 Safari/537.36';
   page.viewportSize = {
     height: 875,
     width: 1450

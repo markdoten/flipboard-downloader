@@ -33,7 +33,7 @@ workflow.addStep('Load signin page', function (done) {
       return;
     }
     if (page.injectJs('node_modules/jquery/dist/jquery.min.js')) {
-      done();
+      setTimeout(done, 5000);
     }
   });
 });

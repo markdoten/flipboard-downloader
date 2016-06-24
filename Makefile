@@ -1,5 +1,3 @@
-export PHANTOMJS_EXECUTABLE := node_modules/.bin/phantomjs
-
 .PHONY: clean run
 
 all: install
@@ -15,6 +13,11 @@ node_modules: package.json
 
 EXCLUDE=
 MAGS=
+
 run:
 	./node_modules/.bin/phantomjs ./src/download.js \
+	user=$(USER) pass=$(PASS) mags="$(MAGS)" exclude="$(EXCLUDE)"
+
+run_debug:
+	./node_modules/.bin/phantomjs --remote-debugger-port=9000 ./src/download.js \
 	user=$(USER) pass=$(PASS) mags="$(MAGS)" exclude="$(EXCLUDE)"
