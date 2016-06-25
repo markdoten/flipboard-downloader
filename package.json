@@ -6,8 +6,6 @@
   "dependencies": {
     "babel-polyfill": "*",
     "es5-shim": "*",
-    "es6-shim": "*",
-    "es6-symbol": "*",
     "jquery": "*",
     "moment": "*",
     "mout": "^0.11.1",

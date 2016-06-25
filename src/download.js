@@ -75,7 +75,7 @@ workflow.addStep('Compile magazines', function () {
      * @return {string}
      */
     function getMagPath(path) {
-      return path.replace(/@([^\/]*).*-([^-]*)$/, 'editor/sid%2F$2%2F$1');
+      return path.replace(/@([^\/]*).*-([^-]*)$/, 'editor/sid%252F$2%252F$1');
     }
 
     $('.magazine-tile').each(function (idx, mag) {
@@ -115,7 +115,7 @@ workflow.addStep('Process magazines', function (done) {
     }
 
     item = magazines[idx];
-    console.log(item.name, item.url);
+    console.log(item.name + ':', unescape(item.url));
 
     if (!validateRequested(item.name)) {
       return callback(true);

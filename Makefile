@@ -1,4 +1,4 @@
-.PHONY: clean run
+.PHONY: clean run run_debug
 
 all: install
 

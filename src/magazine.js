@@ -9,11 +9,12 @@ var magazine;
 var workflow = new Workflow();
 
 workflow.addStep('Load magazine', function (done) {
-  workflow._page.open(magazine.url, function (status) {
+  var page = workflow._page;
+  page.open(magazine.url, function (status) {
     if (status !== 'success') {
       return done();
     }
-    if (workflow._page.injectJs('node_modules/jquery/dist/jquery.min.js')) {
+    if (page.injectJs('node_modules/jquery/dist/jquery.min.js')) {
       setTimeout(done, 5000);
     }
   });
