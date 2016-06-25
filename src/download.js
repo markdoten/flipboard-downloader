@@ -12,6 +12,11 @@ var workflow = new Workflow(createPage());
 var systemArgs = util.parseSystemArgs(system.args);
 systemArgs.exclude = systemArgs.exclude ? systemArgs.exclude.split(',') : [];
 systemArgs.mags = systemArgs.mags ? systemArgs.mags.split(',') : [];
+systemArgs.output = systemArgs.output || 'images/';
+
+if (!/\/$/.test(systemArgs.output)) {
+  systemArgs.output += '/';
+}
 
 function validateRequested(name) {
   var lowerName = name.toLowerCase();
@@ -121,7 +126,11 @@ workflow.addStep('Process magazines', function (done) {
       return callback(true);
     }
     processing = true;
-    processMagazine(item, callback);
+    processMagazine({
+      dest: systemArgs.output,
+      done: callback,
+      mag: item
+    });
   }, 1000);
 });
 

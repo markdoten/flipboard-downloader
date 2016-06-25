@@ -10,7 +10,8 @@ var download = function(uri, filename, callback){
 };
 
 var uri = process.argv[2];
-var filename = __dirname + '/' + process.argv[3];
+var filename = process.argv[3];
+filename = /^\//.test(filename) ? filename : __dirname + '/' + filename;
 
 var parts = filename.split('/');
 parts.pop();

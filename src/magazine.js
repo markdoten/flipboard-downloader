@@ -4,6 +4,7 @@ var Workflow = require('./workflow');
 
 var articles = 0;
 var currentTime = moment();
+var dest;
 var images = [];
 var magazine;
 var workflow = new Workflow();
@@ -125,7 +126,6 @@ workflow.addStep('Find all images', function (done) {
 });
 
 workflow.addStep('Process images', function (done) {
-  var dest = 'images/' + magazine.name;
   var idx = 0;
   var item;
   var len = images.length;
@@ -154,14 +154,15 @@ workflow.addStep('Process images', function (done) {
     }
     processing = true;
     console.log('Downloading', idx + 1, 'of', len);
-    util.download(item, dest, callback);
+    util.download(item, dest + magazine.name, callback);
   }, 1000);
 });
 
-module.exports = function (mag, done) {
+module.exports = function (opts) {
   articles = 0;
+  dest = opts.dest;
   images = [];
-  magazine = mag;
+  magazine = opts.mag;
   workflow.setPage(util.createPage());
-  workflow.process(done);
+  workflow.process(opts.done);
 };
