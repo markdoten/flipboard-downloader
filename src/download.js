@@ -1,13 +1,29 @@
 var createPage = require('./util').createPage;
+var difference = require('mout/array/difference');
+var forEach = require('mout/array/forEach');
+var forOwn = require('mout/object/forOwn');
+var keys = require('mout/object/keys');
 var moment = require('moment');
 var processMagazine = require('./magazine');
 var Workflow = require('./workflow');
+var sort = require('mout/array/sort');
 var system = require('system');
 var util = require('./util');
 
+var magazineAccessArray = [];
 var magazineAccess = util.getMagazineAccess();
-var magazines;
+var magazines = [];
 var workflow = new Workflow(createPage());
+
+forOwn(magazineAccess, function (val, key) {
+  magazineAccessArray.push({
+    name: key,
+    lastProcessed: moment(val)
+  });
+});
+magazineAccessArray = sort(magazineAccessArray, function (a, b) {
+  return b.lastProcessed < a.lastProcessed;
+});
 
 var systemArgs = util.parseSystemArgs(system.args);
 systemArgs.exclude = systemArgs.exclude ? systemArgs.exclude.split(',') : [];
@@ -69,8 +85,8 @@ workflow.addStep('Load magazines', function (done) {
 workflow.addStep('Compile magazines', function () {
   var page = workflow._page;
 
-  magazines = page.evaluate(function (magazineAccess) {
-    var items = [];
+  var mags = page.evaluate(function (magazineAccess) {
+    var items = {};
     var name;
     var path;
 
@@ -87,14 +103,29 @@ workflow.addStep('Compile magazines', function () {
       name = $(mag).find('h3.truncated-text').html();
       path = $(mag).find('.section-link').attr('href');
 
-      items.push({
+      items[name] = {
         lastProcessed: magazineAccess[name],
         name: name,
         url: 'https://flipboard.com' + getMagPath(path)
-      });
+      };
     });
     return items;
   }, magazineAccess);
+
+  // Check if any are in mags and not magazineAccess
+  forEach(difference(keys(mags), keys(magazineAccess)), function (val) {
+    magazines.push(mags[val]);
+  });
+
+  var name;
+  forEach(magazineAccessArray, function (val) {
+    name = val.name;
+    // Name isn't in the access list, so it must be new. Add to the front.
+    if (!(name in mags)) {
+      return;
+    }
+    magazines.push(mags[name]);
+  });
 });
 
 workflow.addStep('Process magazines', function (done) {
