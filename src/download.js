@@ -103,6 +103,10 @@ workflow.addStep('Compile magazines', function () {
       name = $(mag).find('h3.truncated-text').html();
       path = $(mag).find('.section-link').attr('href');
 
+      if (name === "Create Magazine") {
+        return;
+      }
+
       items[name] = {
         lastProcessed: magazineAccess[name],
         name: name,
